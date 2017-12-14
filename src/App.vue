@@ -10,14 +10,19 @@
     </v-ons-toolbar>
 
     <p style="text-align: center">
-      <v-ons-button @click="$ons.notification.alert('Hello World!')">
-        Click me!
+      <v-ons-button @click="settingButtonClick">
+        設定
       </v-ons-button>
       <!-- 画像表示テスト
       <img src="./assets/images/bottom_01.png" />
       -->
     </p>
-    <div ref="stage"></div>    
+
+    <!-- TreeJS表示場所 -->
+    <div ref="stage"></div>
+
+    <!-- モーダルウィンドウ -->
+    <setting-modal></setting-modal>
   </v-ons-page>
 </template>
 
@@ -25,14 +30,21 @@
 </style>
 
 <script>
+  // 必要ライブラリ
   import * as THREE from 'three';
   import convert from 'color-convert';
 
+  // コンポーネント
+  import SettingModal from './setting/SettingModal.vue';
+
   export default {
     name: 'app',
+    components: {
+      SettingModal,
+    },
     data () {
       return {
-        title: 'Welcome to Your Vue.js App',
+        title: 'Yukari-chan generator(Santa ver.)',
         scene: null,
         renderer: null,
         camera: null,
@@ -42,15 +54,19 @@
       }
     },
     mounted: function() {
+      // canvasのサイズ指定(px・・・と思う)
+      let _width = 100;
+      let _height = 100;
+
       // === scene ===
       this.scene = new THREE.Scene ();
 
       // === renderer ===
       this.renderer = new THREE.WebGLRenderer ();
-      this.renderer.setSize( window.innerWidth, window.innerHeight );
+      this.renderer.setSize( 100, _height );
 
       // === camera ===
-      this.camera = new THREE.PerspectiveCamera (75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      this.camera = new THREE.PerspectiveCamera (75, _width / _height, 0.1, 1000);
       this.camera.position.z = 5;
 
       // === light ===
@@ -106,6 +122,9 @@
         });
 
         this.renderer.render(this.scene, this.camera);
+      },
+      settingButtonClick: function() {
+        this.$store.commit('modalVisible', true);
       },
     },
   }

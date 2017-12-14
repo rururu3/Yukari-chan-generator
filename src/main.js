@@ -9,7 +9,11 @@ import 'onsenui/css/onsen-css-components.css';
 import VueOnsen from 'vue-onsenui'; 
 Vue.use(VueOnsen);
 
+// Vuex
+import store from './vuex';
+
 new Vue({
   el: '#app',
+  store,
   render: h => h(App),
 });
