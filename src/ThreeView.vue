@@ -106,6 +106,9 @@
             _sprite.scale.x = _spriteMap.image.naturalWidth / 200.0;
             _sprite.scale.y = _spriteMap.image.naturalHeight / 200.0;
 
+            // 表示非表示はこれ
+            _sprite.visible = false;
+
             // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
             _sprite.position.z = _part.zindex - element2.pos;
 
