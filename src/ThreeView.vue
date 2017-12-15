@@ -51,9 +51,9 @@
         // this.bufferCamera = new THREE.PerspectiveCamera(75, _width / _height, 0.1, 1000);
         // this.bufferCamera.position.z = 110;
         // 正射影
-        this.bufferCamera = new THREE.OrthographicCamera(_width / - 2, _width / 2, _height / 2, _height / - 2, 0, 200);
-        this.bufferCamera.position.z = 0;
-        this.bufferCamera.lookAt(new THREE.Vector3(0, 0, 200));
+        this.bufferCamera = new THREE.OrthographicCamera(_width / - 2, _width / 2, _height / 2, _height / - 2, -200, 200);
+        this.bufferCamera.position.z = 200;
+        this.bufferCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
         // === light ===
         this.bufferLight = new THREE.AmbientLight(0xffffff);
@@ -145,39 +145,53 @@
 
         // データを元に画像をスプライトにしていく
         this.$store.state.ImageList.forEach((element) => {
-          let _spriteObj = {
-            name: element.name,
-            parts: element.parts,
-            spriteList: [],
-          };
+          if(this.$store.state.DefaultImages.findIndex((element2) => {
+            return(element2 == element.name);
+          }) >= 0) {
+            let _spriteObj = {
+              name: element.name,
+              parts: element.parts,
+              spriteList: [],
+            };
 
-          // パーツデータを取ってきておく
-          let _part = this.$store.state.PartsList.find((element2) => {
-            return(element2.name == element.parts[0]);
-          });
+            // パーツデータを取ってきておく
+            let _part = this.$store.state.PartsList.find((element2) => {
+              return(element2.name == element.parts[0]);
+            });
 
-          // イメージ分sprite作成する
-          element.image.forEach((element2) => {
-            // ThreeJSのスプライト生成
-            const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
-            const _spriteMaterial = new THREE.SpriteMaterial( { map: _spriteMap, color: 0xffffff } );
-            const _sprite = new THREE.Sprite( _spriteMaterial );
-            _sprite.scale.x = _spriteMap.image.naturalWidth;
-            _sprite.scale.y = _spriteMap.image.naturalHeight;
+            // イメージ分sprite作成する
+            element.image.forEach((element2) => {
+              // ThreeJSのスプライト生成
+              // const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
+              // const _spriteMaterial = new THREE.SpriteMaterial( { map: _spriteMap, color: 0xffffff } );
+              // const _sprite = new THREE.Sprite( _spriteMaterial );
+              // _sprite.scale.x = _spriteMap.image.naturalWidth;
+              // _sprite.scale.y = _spriteMap.image.naturalHeight;
 
-            // 表示非表示はこれ
-            // _sprite.visible = false;
+              // render textureではどうもspriteは無理っぽいのでPlaneで
+              const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
+              let _geometry = new THREE.PlaneGeometry(_spriteMap.image.naturalWidth, _spriteMap.image.naturalHeight, 10, 10);
+              let _material = new THREE.MeshBasicMaterial({map: _spriteMap, side: THREE.DoubleSide});    
+              // アルファテスト有効(いらない)
+              // _material.alphaTest = 0.1;
+              // 半透明なのでtransparentをtrueにしないといけない
+              _material.transparent = true;
+              const _sprite = new THREE.Mesh(_geometry, _material);
 
-            // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
-            _sprite.position.z = _part.zindex - element2.pos;
+              // 表示非表示はこれ
+              // _sprite.visible = false;
 
-            // オブジェクトに追加
-            _spriteObj.spriteList.push(_sprite);
+              // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
+              _sprite.position.z = _part.zindex + element2.pos;
 
-            // シーンに追加しておく
-            this.bufferScene.add( _sprite );
-          });
-          this.bufferSpriteObjList.push(_spriteObj);
+              // オブジェクトに追加
+              _spriteObj.spriteList.push(_sprite);
+
+              // シーンに追加しておく
+              this.bufferScene.add(_sprite);
+            });
+            this.bufferSpriteObjList.push(_spriteObj);
+          }
         });
       }
     },
