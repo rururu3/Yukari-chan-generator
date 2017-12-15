@@ -35,8 +35,13 @@
       this.renderer.setSize( _width, _height );
 
       // === camera ===
-      this.camera = new THREE.PerspectiveCamera (75, _width / _height, 0.1, 1000);
-      this.camera.position.z = 110;
+      // 遠近投影は当然だめ
+      // this.camera = new THREE.PerspectiveCamera (75, _width / _height, 0.1, 1000);
+      // this.camera.position.z = 110;
+      // 正射影
+      this.camera = new THREE.OrthographicCamera( _width / - 2, _width / 2, _height / 2, _height / - 2, 0, 200 );
+      this.camera.position.z = 0;
+      this.camera.lookAt( new THREE.Vector3( 0, 0, 200 ) );
 
       // === light ===
       this.light = new THREE.AmbientLight( 0xffffff );
@@ -103,11 +108,11 @@
             const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
             const _spriteMaterial = new THREE.SpriteMaterial( { map: _spriteMap, color: 0xffffff } );
             const _sprite = new THREE.Sprite( _spriteMaterial );
-            _sprite.scale.x = _spriteMap.image.naturalWidth / 200.0;
-            _sprite.scale.y = _spriteMap.image.naturalHeight / 200.0;
+            _sprite.scale.x = _spriteMap.image.naturalWidth;
+            _sprite.scale.y = _spriteMap.image.naturalHeight;
 
             // 表示非表示はこれ
-            _sprite.visible = false;
+            // _sprite.visible = false;
 
             // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
             _sprite.position.z = _part.zindex - element2.pos;
