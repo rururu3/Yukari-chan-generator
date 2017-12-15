@@ -26,7 +26,6 @@
 
 <script>
   import { Chrome } from 'vue-color';
-  import {SetList, PartsList, DefaultImages, ImageList} from './setting.js';
 
   let defaultProps = {
     hex: '#194d33',
@@ -66,7 +65,7 @@
     created: function() {
       // 一致するものをリスト化する
       this.PartsList.splice(0, this.PartsList.length);
-      PartsList.filter((element) => {
+      this.$store.state.PartsList.filter((element) => {
         return(element.set = this.setData.name);
       })
       .forEach((element) => {

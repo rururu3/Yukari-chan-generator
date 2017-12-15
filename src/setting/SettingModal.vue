@@ -14,8 +14,6 @@
 </style>
 
 <script>
-  import {SetList, PartsList, DefaultImages, ImageList} from './setting.js';
-
   import SettingParts from './SettingParts.vue';
 
   export default {
@@ -24,13 +22,15 @@
     },
     data() {
       return({
-        SetList,
       });
     },
     computed: {
       visible: function() {
         return(this.$store.state.modalVisible);
-      }
+      },
+      SetList: function() {
+        return(this.$store.state.SetList);
+      },
     },
     methods: {
       modalClick: function() {
