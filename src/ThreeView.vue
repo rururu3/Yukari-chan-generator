@@ -14,48 +14,89 @@
   export default {
     data () {
       return {
-        scene: null,
         renderer: null,
+
+        // 画面出力用
+        scene : null,
         camera: null,
         light: null,
+        mesh: null,
+
+        // バッファ出力用
+        bufferScene : null,
+        bufferCamera: null,
+        bufferLight: null,
+        bufferSpriteObjList: [],
+        bufferTexture: null,
+
         hsv: [96, 50, 78],
-        spriteObjList: [],
       }
     },
     mounted: function() {
       // canvasのサイズ指定(px・・・と思う)
-      let _width = 1000;
-      let _height = 1000;
-
-      // === scene ===
-      this.scene = new THREE.Scene ();
+      let _width = 1024;
+      let _height = 1024;
 
       // === renderer ===
-      this.renderer = new THREE.WebGLRenderer ();
-      this.renderer.setSize( _width, _height );
+      this.renderer = new THREE.WebGLRenderer();
+      this.renderer.setSize(_width, _height);
 
-      // === camera ===
-      // 遠近投影は当然だめ
-      // this.camera = new THREE.PerspectiveCamera (75, _width / _height, 0.1, 1000);
-      // this.camera.position.z = 110;
-      // 正射影
-      this.camera = new THREE.OrthographicCamera( _width / - 2, _width / 2, _height / 2, _height / - 2, 0, 200 );
-      this.camera.position.z = 0;
-      this.camera.lookAt( new THREE.Vector3( 0, 0, 200 ) );
+      // バッファ書き込み用のカメラなど作成
+      {
+        // === scene ===
+        this.bufferScene = new THREE.Scene();
 
-      // === light ===
-      this.light = new THREE.AmbientLight( 0xffffff );
+        // === camera ===
+        // 遠近投影は当然だめ
+        // this.bufferCamera = new THREE.PerspectiveCamera(75, _width / _height, 0.1, 1000);
+        // this.bufferCamera.position.z = 110;
+        // 正射影
+        this.bufferCamera = new THREE.OrthographicCamera(_width / - 2, _width / 2, _height / 2, _height / - 2, 0, 200);
+        this.bufferCamera.position.z = 0;
+        this.bufferCamera.lookAt(new THREE.Vector3(0, 0, 200));
 
-      // === sceneにmodel,light, cameraを追加 ===
-      this.scene.add( this.camera );
-      this.scene.add( this.light);
+        // === light ===
+        this.bufferLight = new THREE.AmbientLight(0xffffff);
+
+        // === render texture ===
+        this.bufferTexture = new THREE.WebGLRenderTarget(_width, _height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
+
+        // === sceneにmodel,light, cameraを追加 ===
+        this.bufferScene.add(this.bufferCamera);
+        this.bufferScene.add(this.bufferLight);
+        
+        // TODO:とりあえずここで全作成してみる
+        this.createSpriteList();
+      }
+
+      // 実際に描画する用のカメラなど作成
+      {
+        // === scene ===
+        this.scene = new THREE.Scene();
+
+        // 正射影
+        this.camera = new THREE.OrthographicCamera(_width / - 2, _width / 2, _height / 2, _height / - 2, 0, 200);
+        this.camera.position.z = -10;
+        this.camera.lookAt(new THREE.Vector3(0, 0, 200));
+
+        // === light ===
+        this.light = new THREE.AmbientLight(0xffffff);
+
+        // === plane ===
+        // render textureではどうもspriteは無理っぽいのでPlaneで
+        let _geometry = new THREE.PlaneGeometry(_width, _height, 10, 10);
+        let _material = new THREE.MeshBasicMaterial({map: this.bufferTexture, side: THREE.DoubleSide});    
+        this.mesh = new THREE.Mesh(_geometry, _material);
+
+        // === sceneにmodel,light, cameraを追加 ===
+        this.scene.add(this.camera);
+        this.scene.add(this.light);
+        this.scene.add(this.mesh);
+      }
 
       // === DOMを追加, animate ===
       this.$refs.stage.appendChild(this.renderer.domElement);
       this.animate();
-      
-      // TODO:とりあえずここで全作成してみる
-      this.createSpriteList();
     },
     methods: {
       // レンダー関数(requestAnimationFrameで毎フレーム描画)
@@ -69,28 +110,38 @@
         const _rgb = convert.hsv.rgb(this.hsv);
         this.hsv[0] = (this.hsv[0] + 1) % 256;
 
-        this.spriteObjList.forEach((element) => {
-          element.spriteList.forEach((element2) => {
-            // element2.rotation.x += 0.05;
-            // element2.rotation.y += 0.05;
-            element2.material.color.r = _rgb[0] / 255.0;
-            element2.material.color.g = _rgb[1] / 255.0;
-            element2.material.color.b = _rgb[2] / 255.0;
+        // バッファ書き込み用
+        {
+          this.bufferSpriteObjList.forEach((element) => {
+            element.spriteList.forEach((element2) => {
+              // element2.rotation.x += 0.05;
+              // element2.rotation.y += 0.05;
+              element2.material.color.r = _rgb[0] / 255.0;
+              element2.material.color.g = _rgb[1] / 255.0;
+              element2.material.color.b = _rgb[2] / 255.0;
+            });
           });
-        });
 
-        this.renderer.render(this.scene, this.camera);
+          this.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
+          this.renderer.render(this.bufferScene, this.bufferCamera, this.bufferTexture);
+        }
+
+        // 画面書き込み用
+        {
+          this.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
+          this.renderer.render(this.scene, this.camera);
+        }
       },
       // スプライト生成
       createSpriteList: function() {
         // スプライトデータが有れば消す処理をする
-        this.spriteObjList.forEach((element) => {
+        this.bufferSpriteObjList.forEach((element) => {
           element.spriteList.forEach((element2) => {
             // 親から削除すればOKらしい
             element2.parent().remove( element2 );
           })
         });
-        this.spriteObjList.splice(0, this.spriteObjList.length);
+        this.bufferSpriteObjList.splice(0, this.bufferSpriteObjList.length);
 
         // データを元に画像をスプライトにしていく
         this.$store.state.ImageList.forEach((element) => {
@@ -124,9 +175,9 @@
             _spriteObj.spriteList.push(_sprite);
 
             // シーンに追加しておく
-            this.scene.add( _sprite );
+            this.bufferScene.add( _sprite );
           });
-          this.spriteObjList.push(_spriteObj);
+          this.bufferSpriteObjList.push(_spriteObj);
         });
       }
     },
