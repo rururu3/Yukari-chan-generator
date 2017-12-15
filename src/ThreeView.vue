@@ -59,6 +59,9 @@
     },
     methods: {
       // レンダー関数(requestAnimationFrameで毎フレーム描画)
+      // 指定テクスチャーに描画するサンプルURL
+      // https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
+      // これを利用して指定テクスチャーに描画後にそのテクスチャーを描画する(回転するとおかしくなるから)
       animate: function() {
         requestAnimationFrame( this.animate );
 
