@@ -1,5 +1,5 @@
 <template>
-  <v-ons-modal :visible="visible" @click="modalClick">
+  <div>
     <div v-for="data in SetList">
       <v-ons-list-header>{{ data.name }}</v-ons-list-header>
       <setting-parts
@@ -7,7 +7,7 @@
       >
       </setting-parts>
     </div>
-  </v-ons-modal>
+  </div>
 </template>
 
 <style>
@@ -25,17 +25,11 @@
       });
     },
     computed: {
-      visible: function() {
-        return(this.$store.state.modalVisible);
-      },
       SetList: function() {
         return(this.$store.state.SetList);
       },
     },
     methods: {
-      modalClick: function() {
-        // this.$store.commit('modalVisible', false);
-      }
-    }
+    },
   }
 </script>

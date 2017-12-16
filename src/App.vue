@@ -9,20 +9,13 @@
       </div>
     </v-ons-toolbar>
 
-    <p style="text-align: center">
-      <v-ons-button @click="settingButtonClick">
-        設定
-      </v-ons-button>
-      <!-- 画像表示テスト
-      <img src="./assets/images/bottom_01.png" />
-      -->
-    </p>
+    <div>
+      <!-- TreeJS表示場所 -->
+      <three-view style="float:left; width: 512px; height: 1024px;"></three-view>
 
-    <!-- TreeJS表示場所 -->
-    <three-view></three-view>
-
-    <!-- モーダルウィンドウ -->
-    <setting-modal></setting-modal>
+      <!-- 設定表示場所 -->
+      <setting-main style="float:left; width: 512px;"></setting-main>
+    </div>
   </v-ons-page>
 </template>
 
@@ -31,13 +24,13 @@
 
 <script>
   // コンポーネント
-  import SettingModal from './setting/SettingModal.vue';
+  import SettingMain from './setting/SettingMain.vue';
   import ThreeView from './ThreeView.vue';
 
   export default {
     name: 'app',
     components: {
-      SettingModal,
+      SettingMain,
       ThreeView,
     },
     data () {
@@ -46,9 +39,6 @@
       }
     },
     methods: {
-      settingButtonClick: function() {
-        this.$store.commit('modalVisible', true);
-      },
     },
   }
 </script>

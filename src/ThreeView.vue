@@ -1,6 +1,8 @@
 <template>
+  <div>
     <!-- TreeJS表示場所 -->
     <div ref="stage"></div>
+  </div>
 </template>
 
 <style>
@@ -34,7 +36,7 @@
     },
     mounted: function() {
       // canvasのサイズ指定(px・・・と思う)
-      let _width = 1024;
+      let _width = 512;
       let _height = 1024;
 
       let _bufferWidth = 500;
