@@ -37,6 +37,9 @@
       let _width = 1024;
       let _height = 1024;
 
+      let _bufferWidth = 500;
+      let _bufferHeight = 1000;
+
       // === renderer ===
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(_width, _height);
@@ -47,11 +50,8 @@
         this.bufferScene = new THREE.Scene();
 
         // === camera ===
-        // 遠近投影は当然だめ
-        // this.bufferCamera = new THREE.PerspectiveCamera(75, _width / _height, 0.1, 1000);
-        // this.bufferCamera.position.z = 110;
         // 正射影
-        this.bufferCamera = new THREE.OrthographicCamera(_width / - 2, _width / 2, _height / 2, _height / - 2, -200, 200);
+        this.bufferCamera = new THREE.OrthographicCamera(_bufferWidth / - 2, _bufferWidth / 2, _bufferHeight / 2, _height / - 2, -200, 200);
         this.bufferCamera.position.z = 200;
         this.bufferCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -59,7 +59,7 @@
         this.bufferLight = new THREE.AmbientLight(0xffffff);
 
         // === render texture ===
-        this.bufferTexture = new THREE.WebGLRenderTarget(_width, _height, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
+        this.bufferTexture = new THREE.WebGLRenderTarget(_bufferWidth, _bufferHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
 
         // === sceneにmodel,light, cameraを追加 ===
         this.bufferScene.add(this.bufferCamera);
@@ -84,7 +84,7 @@
 
         // === plane ===
         // render textureではどうもspriteは無理っぽいのでPlaneで
-        let _geometry = new THREE.PlaneGeometry(_width, _height, 10, 10);
+        let _geometry = new THREE.PlaneGeometry(_bufferWidth, _bufferHeight, 10, 10);
         let _material = new THREE.MeshBasicMaterial({map: this.bufferTexture, side: THREE.DoubleSide});    
         this.mesh = new THREE.Mesh(_geometry, _material);
 
@@ -145,55 +145,56 @@
 
         // データを元に画像をスプライトにしていく
         this.$store.state.ImageList.forEach((element) => {
-          if(this.$store.state.DefaultImages.findIndex((element2) => {
+          let _spriteObj = {
+            name: element.name,
+            parts: element.parts,
+            spriteList: [],
+          };
+
+          // パーツデータを取ってきておく
+          let _part = this.$store.state.PartsList.find((element2) => {
+            return(element2.name == element.parts[0]);
+          });
+
+          // 表示設定
+          let _visible = (this.$store.state.DefaultImages.findIndex((element2) => {
             return(element2 == element.name);
-          }) >= 0) {
-            let _spriteObj = {
-              name: element.name,
-              parts: element.parts,
-              spriteList: [],
-            };
+          }) >= 0);
 
-            // パーツデータを取ってきておく
-            let _part = this.$store.state.PartsList.find((element2) => {
-              return(element2.name == element.parts[0]);
-            });
+          // イメージ分sprite作成する
+          element.image.forEach((element2) => {
+            // ThreeJSのスプライト生成
+            // const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
+            // const _spriteMaterial = new THREE.SpriteMaterial( { map: _spriteMap, color: 0xffffff } );
+            // const _sprite = new THREE.Sprite( _spriteMaterial );
+            // _sprite.scale.x = _spriteMap.image.naturalWidth;
+            // _sprite.scale.y = _spriteMap.image.naturalHeight;
 
-            // イメージ分sprite作成する
-            element.image.forEach((element2) => {
-              // ThreeJSのスプライト生成
-              // const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
-              // const _spriteMaterial = new THREE.SpriteMaterial( { map: _spriteMap, color: 0xffffff } );
-              // const _sprite = new THREE.Sprite( _spriteMaterial );
-              // _sprite.scale.x = _spriteMap.image.naturalWidth;
-              // _sprite.scale.y = _spriteMap.image.naturalHeight;
+            // render textureではどうもspriteは無理っぽいのでPlaneで
+            const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
+            let _geometry = new THREE.PlaneGeometry(_spriteMap.image.naturalWidth, _spriteMap.image.naturalHeight, 10, 10);
+            let _material = new THREE.MeshBasicMaterial({map: _spriteMap, side: THREE.DoubleSide});    
+            // アルファテスト有効(いらない)
+            // _material.alphaTest = 0.1;
+            // 半透明なのでtransparentをtrueにしないといけない
+            _material.transparent = true;
+            const _sprite = new THREE.Mesh(_geometry, _material);
 
-              // render textureではどうもspriteは無理っぽいのでPlaneで
-              const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
-              let _geometry = new THREE.PlaneGeometry(_spriteMap.image.naturalWidth, _spriteMap.image.naturalHeight, 10, 10);
-              let _material = new THREE.MeshBasicMaterial({map: _spriteMap, side: THREE.DoubleSide});    
-              // アルファテスト有効(いらない)
-              // _material.alphaTest = 0.1;
-              // 半透明なのでtransparentをtrueにしないといけない
-              _material.transparent = true;
-              const _sprite = new THREE.Mesh(_geometry, _material);
+            // 表示非表示はこれ
+            _sprite.visible = _visible;
 
-              // 表示非表示はこれ
-              // _sprite.visible = false;
+            // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
+            _sprite.position.z = _part.zindex + element2.pos;
 
-              // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
-              _sprite.position.z = _part.zindex + element2.pos;
+            // オブジェクトに追加
+            _spriteObj.spriteList.push(_sprite);
 
-              // オブジェクトに追加
-              _spriteObj.spriteList.push(_sprite);
-
-              // シーンに追加しておく
-              this.bufferScene.add(_sprite);
-            });
-            this.bufferSpriteObjList.push(_spriteObj);
-          }
+            // シーンに追加しておく
+            this.bufferScene.add(_sprite);
+          });
+          this.bufferSpriteObjList.push(_spriteObj);
         });
-      }
+      },
     },
   }
 </script>
