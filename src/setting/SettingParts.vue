@@ -7,13 +7,13 @@
     >
       <label class="left">
         <v-ons-radio
-          :input-id="'radio-' + $index"
+          :input-id="'radio-' + Parts.name + $index"
           :value="data.name"
           v-model="selected"
         >
         </v-ons-radio>
       </label>
-      <label :for="'radio-' + $index" class="center">
+      <label :for="'radio-' + Parts.name + $index" class="center">
         {{ data.name }}
       </label>
     </div>
@@ -59,6 +59,7 @@
       return({
         selected: '',
         PartsList: [],
+        Parts: { name: '' },
         colors: defaultProps,
       });
     },
@@ -66,10 +67,15 @@
       // 一致するものをリスト化する
       this.PartsList.splice(0, this.PartsList.length);
       this.$store.state.PartsList.filter((element) => {
-        return(element.set = this.setData.name);
+        return(element.set == this.setData.name);
       })
       .forEach((element) => {
-        this.PartsList.push(element);
+        this.Parts.name = element.name;
+        this.$store.state.ImageList.forEach((element2) => {
+          if(element.name == element2.parts[0]) {
+            this.PartsList.push(element2);
+          }
+        });
       });
     },
   }
