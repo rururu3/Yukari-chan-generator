@@ -74,9 +74,25 @@
         this.$store.state.ImageList.forEach((element2) => {
           if(element.name == element2.parts[0]) {
             this.PartsList.push(element2);
+
+            // デフォルト選択設定
+            let _index = this.$store.state.DefaultImages.findIndex((element3) => {
+              return(element2.name == element3);
+            });
+            if(_index >= 0) {
+              console.log(this.$store.state.DefaultImages[_index]);
+              this.selected = this.$store.state.DefaultImages[_index];
+            }
           }
         });
       });
+
+    },
+    watch: {
+      // ラジオボタンの状態を監視してemitする
+      selected: function() {
+        this.$emit('partsClick');
+      },
     },
   }
 </script>

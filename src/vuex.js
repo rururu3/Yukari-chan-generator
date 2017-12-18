@@ -9,20 +9,26 @@ import {SetList, PartsList, DefaultImages, ImageList} from './config.js';
 
 export default new Vuex.Store({
   state: {
-    modalVisible: false,
+    bufferSpriteObjList: [],    // スプライト情報(これのデータを操作すればOK)
     SetList,
     PartsList,
     DefaultImages,
     ImageList,
   },
   actions: {
-    modalVisible(context, value) {
-      context.commit('modalVisible', value);
+    clearBufferSpriteObjList(context) {
+      context.commit('clearBufferSpriteObjList');
+    },
+    addBufferSpriteObjList(context, value) {
+      context.commit('addBufferSpriteObjList', value);
     },
   },
   mutations: {
-    modalVisible(state, value) {
-      state.modalVisible = value;
+    clearBufferSpriteObjList(state) {
+      state.bufferSpriteObjList.splice(0, state.bufferSpriteObjList.length);
+    },
+    addBufferSpriteObjList(state, value) {
+      state.bufferSpriteObjList.push(value);
     },
   },
 })

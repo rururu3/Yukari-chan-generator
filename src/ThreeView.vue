@@ -28,7 +28,6 @@
         bufferScene : null,
         bufferCamera: null,
         bufferLight: null,
-        bufferSpriteObjList: [],
         bufferTexture: null,
 
         hsv: [96, 50, 78],
@@ -114,7 +113,7 @@
 
         // バッファ書き込み用
         {
-          this.bufferSpriteObjList.forEach((element) => {
+          this.$store.state.bufferSpriteObjList.forEach((element) => {
             element.spriteList.forEach((element2) => {
               // element2.rotation.x += 0.05;
               // element2.rotation.y += 0.05;
@@ -137,13 +136,13 @@
       // スプライト生成
       createSpriteList: function() {
         // スプライトデータが有れば消す処理をする
-        this.bufferSpriteObjList.forEach((element) => {
+        this.$store.state.bufferSpriteObjList.forEach((element) => {
           element.spriteList.forEach((element2) => {
             // 親から削除すればOKらしい
             element2.parent().remove( element2 );
           })
         });
-        this.bufferSpriteObjList.splice(0, this.bufferSpriteObjList.length);
+        this.$store.dispatch('clearBufferSpriteObjList');
 
         // データを元に画像をスプライトにしていく
         this.$store.state.ImageList.forEach((element) => {
@@ -194,7 +193,7 @@
             // シーンに追加しておく
             this.bufferScene.add(_sprite);
           });
-          this.bufferSpriteObjList.push(_spriteObj);
+          this.$store.dispatch('addBufferSpriteObjList', _spriteObj);
         });
       },
     },
