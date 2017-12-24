@@ -25,6 +25,12 @@ export default new Vuex.Store({
   },
   mutations: {
     clearBufferSpriteObjList(state) {
+      state.bufferSpriteObjList.forEach((element) => {
+        element.spriteList.forEach((element2) => {
+          // 親から削除すればOKらしい
+          element2.parent().remove( element2 );
+        })
+      });
       state.bufferSpriteObjList.splice(0, state.bufferSpriteObjList.length);
     },
     addBufferSpriteObjList(state, value) {

@@ -9,12 +9,15 @@
       </div>
     </v-ons-toolbar>
 
-    <div>
+    <div style="overflow: none;">
       <!-- TreeJS表示場所 -->
       <three-view style="float:left; width: 512px; height: 1024px;"></three-view>
 
       <!-- 設定表示場所 -->
-      <setting-main style="float:left; width: 512px;"></setting-main>
+      <setting-main
+        style="float:left; width: 512px; height: 1024px; overflow: auto;"
+      >
+      </setting-main>
     </div>
   </v-ons-page>
 </template>

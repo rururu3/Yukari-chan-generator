@@ -1,23 +1,24 @@
 <template>
   <v-ons-list-item>
-    <div
-      v-for="(data, $index) in PartsList"
-      :key="data.name"
-      style="display: inline; vertical-align: middle;"
+    <div 
+      style="float: right;"
     >
-      <label class="left">
-        <v-ons-radio
-          :input-id="'radio-' + Parts.name + $index"
-          :value="data.name"
-          v-model="selected"
+      <div
+        v-for="(data) in PartsList"
+        :key="data.name"
+      >
+        <setting-parts-switch
+          :bufferSpriteObj="data"
+          :colors="colors"
         >
-        </v-ons-radio>
-      </label>
-      <label :for="'radio-' + Parts.name + $index" class="center">
-        {{ data.name }}
-      </label>
+        </setting-parts-switch>
+      </div>
     </div>
-    <chrome-picker v-model="colors"></chrome-picker>
+    <div 
+      style="float: right;"
+    >
+      <chrome-picker v-model="colors"></chrome-picker>
+    </div>
   </v-ons-list-item>
 </template>
 
@@ -25,26 +26,26 @@
 </style>
 
 <script>
+  import SettingPartsSwitch from './SettingPartsSwitch.vue';
   import { Chrome } from 'vue-color';
-
   let defaultProps = {
-    hex: '#194d33',
+    hex: '#FFFFFF',
     hsl: {
       h: 150,
-      s: 0.5,
-      l: 0.2,
+      s: 0,
+      l: 100,
       a: 1
     },
     hsv: {
       h: 150,
-      s: 0.66,
-      v: 0.30,
+      s: 0,
+      v: 1,
       a: 1
     },
     rgba: {
-      r: 25,
-      g: 77,
-      b: 51,
+      r: 255,
+      g: 255,
+      b: 255,
       a: 1
     },
     a: 1
@@ -54,6 +55,7 @@
     props: ['setData'],
     components: {
       'ChromePicker': Chrome,
+      SettingPartsSwitch,
     },
     data() {
       return({
@@ -61,37 +63,34 @@
         PartsList: [],
         Parts: { name: '' },
         colors: defaultProps,
+        bufferSpriteObjList: this.$store.state.bufferSpriteObjList,
       });
     },
     created: function() {
-      // 一致するものをリスト化する
-      this.PartsList.splice(0, this.PartsList.length);
-      this.$store.state.PartsList.filter((element) => {
-        return(element.set == this.setData.name);
-      })
-      .forEach((element) => {
-        this.Parts.name = element.name;
-        this.$store.state.ImageList.forEach((element2) => {
-          if(element.name == element2.parts[0]) {
-            this.PartsList.push(element2);
-
-            // デフォルト選択設定
-            let _index = this.$store.state.DefaultImages.findIndex((element3) => {
-              return(element2.name == element3);
-            });
-            if(_index >= 0) {
-              console.log(this.$store.state.DefaultImages[_index]);
-              this.selected = this.$store.state.DefaultImages[_index];
-            }
-          }
-        });
-      });
-
     },
     watch: {
-      // ラジオボタンの状態を監視してemitする
-      selected: function() {
-        this.$emit('partsClick');
+      bufferSpriteObjList: function() {
+        // 一致するものをリスト化する
+        this.PartsList.splice(0, this.PartsList.length);
+        this.$store.state.PartsList.filter((element) => {
+          return(element.set == this.setData.name);
+        })
+        .forEach((element) => {
+          this.Parts.name = element.name;
+          this.bufferSpriteObjList.forEach((element2) => {
+            if(element.name == element2.parts[0]) {
+              this.PartsList.push(element2);
+
+              // デフォルト選択設定
+              let _index = this.$store.state.DefaultImages.findIndex((element3) => {
+                return(element2.name == element3);
+              });
+              if(_index >= 0) {
+                this.selected = this.$store.state.DefaultImages[_index];
+              }
+            }
+          });
+        });
       },
     },
   }

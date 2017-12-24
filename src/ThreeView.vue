@@ -113,16 +113,6 @@
 
         // バッファ書き込み用
         {
-          this.$store.state.bufferSpriteObjList.forEach((element) => {
-            element.spriteList.forEach((element2) => {
-              // element2.rotation.x += 0.05;
-              // element2.rotation.y += 0.05;
-              element2.material.color.r = _rgb[0] / 255.0;
-              element2.material.color.g = _rgb[1] / 255.0;
-              element2.material.color.b = _rgb[2] / 255.0;
-            });
-          });
-
           this.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
           this.renderer.render(this.bufferScene, this.bufferCamera, this.bufferTexture);
         }
@@ -136,12 +126,6 @@
       // スプライト生成
       createSpriteList: function() {
         // スプライトデータが有れば消す処理をする
-        this.$store.state.bufferSpriteObjList.forEach((element) => {
-          element.spriteList.forEach((element2) => {
-            // 親から削除すればOKらしい
-            element2.parent().remove( element2 );
-          })
-        });
         this.$store.dispatch('clearBufferSpriteObjList');
 
         // データを元に画像をスプライトにしていく
@@ -149,6 +133,7 @@
           let _spriteObj = {
             name: element.name,
             parts: element.parts,
+            visible: false,
             spriteList: [],
           };
 
@@ -158,19 +143,12 @@
           });
 
           // 表示設定
-          let _visible = (this.$store.state.DefaultImages.findIndex((element2) => {
+          _spriteObj.visible = (this.$store.state.DefaultImages.findIndex((element2) => {
             return(element2 == element.name);
           }) >= 0);
 
           // イメージ分sprite作成する
           element.image.forEach((element2) => {
-            // ThreeJSのスプライト生成
-            // const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
-            // const _spriteMaterial = new THREE.SpriteMaterial( { map: _spriteMap, color: 0xffffff } );
-            // const _sprite = new THREE.Sprite( _spriteMaterial );
-            // _sprite.scale.x = _spriteMap.image.naturalWidth;
-            // _sprite.scale.y = _spriteMap.image.naturalHeight;
-
             // render textureではどうもspriteは無理っぽいのでPlaneで
             const _spriteMap = new THREE.TextureLoader().load( 'dist/assets/' + element2.src );
             let _geometry = new THREE.PlaneGeometry(_spriteMap.image.naturalWidth, _spriteMap.image.naturalHeight, 10, 10);
@@ -182,7 +160,7 @@
             const _sprite = new THREE.Mesh(_geometry, _material);
 
             // 表示非表示はこれ
-            _sprite.visible = _visible;
+            _sprite.visible = _spriteObj.visible;
 
             // Zはpartsの最初に入ってたものからの相対が入ってる・・・と思う
             _sprite.position.z = _part.zindex + element2.pos;

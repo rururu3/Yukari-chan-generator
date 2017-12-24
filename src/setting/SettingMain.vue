@@ -1,10 +1,9 @@
 <template>
   <div>
-    <div v-for="data in SetList">
+    <div v-for="data in SetList" :key="data.name">
       <v-ons-list-header>{{ data.name }}</v-ons-list-header>
       <setting-parts
         :setData="data"
-        v-on:partsClick="partsClick"
       >
       </setting-parts>
     </div>
@@ -31,9 +30,6 @@
       },
     },
     methods: {
-      partsClick: function() {
-        console.log("partsClick");
-      },
     },
   }
 </script>
