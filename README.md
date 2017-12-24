@@ -1,6 +1,10 @@
-# my-project
+# Yukari-chan-generator
 
-> A Vue.js project
+> Yukari-chan-generator
+> Original https://github.com/meltypot/Yukari-chan-generator
+
+# sample page
+https://rururu3.github.io/Yukari-chan-generator/
 
 ## Build Setup
 
